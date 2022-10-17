@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# set -xv # -> for debugging
+
+clear
+echo -e "\t****** canmoni von M. Schlewitt ******\t\n"
+timestamp=$(date +%Y-%m-%d_%H-%M-%S)
+
+if [ ! -z "$1" ];
+ then
+  echo -e "Mit canmoni werden die Daten von einer CAN-Schnittstelle aufgezeichnet"
+  echo -e "und in eine Logdatei im aktuell Verzeichnis importiert"
+  echo -e "Des Weitern kann die Aufzeichnung aktiv eingesehen werden "
+  echo -e "\nDatum | Uhrzeit ist : $timestamp\n"
+
+  echo "Bitte wählen!"
+  echo "[1] - Aufzeichnung + aktiver Monitor"
+  echo "[2] - Nur Aufzeichnung in Datei"
+  echo "[3] - Programm beenden"
+  echo "Auswahl:"
+  read auswahl
+
+        case $auswahl in
+        1)
+         candump -tA $1 > $timestamp.txt &
+         sleep 0.2
+         watch --interval 0.2 tail -35 $(pwd)/$timestamp.txt
+         ;;
+        2)
+         echo -e "Aufzeichnung in Datei '$timestamp.txt' aktiv"
+         echo -e "\n\t+++Prozess candump bitte aktiv über z.B. htop beenden+++\n"
+         candump -tA $1 > $timestamp.txt &
+        ;;
+        3)
+         echo -e "Programm wird beendet bye bye!"
+        ;;
+        *)
+         echo -e "Fehlerhafte Auswahl, Programm wird beendet!"
+        ;;
+        esac
+ else
+  echo -e "---Es wurde keine Schnittstelle zum CanBus [z.B. can0] übergeben---"
+  echo -e "Programm beendet"
+fi
